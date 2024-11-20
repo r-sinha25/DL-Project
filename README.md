@@ -6,5 +6,5 @@ Team members:
 - Ishan Bhattacharjee | ibhattac@bu.edu
 - Benjamin Axline | baxline@bu.edu
 
-
+[proposal link]('DL-Project/ACTUAL523 Project Proposal Template.pdf')
 
