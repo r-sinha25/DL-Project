@@ -14,3 +14,10 @@ We are creating a fine-tuned segmentation model for classifying Intracranial Hem
 We are running a segmentation model as a base ground-truth, and then subsequently running a 
 vision transformer that is fine tuned with explainability methods. We will then compare these two methods 
 on our data, to determine which model is more accurate for classifying the subtype of hemorrhage. 
+
+
+Data Installation: 
+Run this line of code to install dataset. 
+kaggle competitions download -c rsna-intracranial-hemorrhage-detection
+
+
