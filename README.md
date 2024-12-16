@@ -9,13 +9,14 @@ Team members:
 [📄 View Proposal (PDF)](ACTUAL523%20Project%20Proposal%20Template.pdf)
 
 
---
+---
+
 ## **Abstract**
 Intracranial Hemorrhage (ICH), a life-threatening condition, is traditionally diagnosed through manual inspection of brain CT scans. To improve the accuracy and efficiency of detection, we developed two deep learning models:
 1. A **pretrained segmentation model** (DeepBleed) to establish ground-truth segmentation masks.
-2. A **Vision Transformer (ViT)** tailored for multi-label classification, incorporating Grad-CAM explainability for visualization.
+2. A **Vision Transformer (ViT)**, initially intended for **multi-label classification** and explainability using Grad-CAM, but which failed to perform adequately and was not fine-tuned for the multi-label task.
 
-The goal is to compare these models' performance on detecting **five hemorrhage subtypes** (Epidural, Subdural, Subarachnoid, Intraventricular, Intraparenchymal) and the general "any" label. Key evaluation metrics include **Accuracy**, **F1 Score**, **AUROC**, and **AUPRC**.
+The segmentation model provides fine-grained detection of hemorrhage regions, while the multi-label classification was implemented separately to address hemorrhage subtype classification.
 
 ---
 
@@ -48,15 +49,13 @@ unzip rsna-intracranial-hemorrhage-detection.zip -d data/
 - Use **DeepBleed** (3D CNN) to generate segmentation masks, establishing ground truth for hemorrhage regions.
 - Process NIfTI CT images with a multi-GPU pipeline for fast inference.
 
-### **2.3 Vision Transformer (ViT)**
-- Fine-tuned ViT for **multi-label classification** of hemorrhage subtypes.
-- Integrated **Grad-CAM explainability** to generate heatmaps highlighting critical regions for model predictions.
-- Optimized training using **Focal Loss** to handle class imbalance.
+### **2.3 Multi-Label Classification**
+- A separate **multi-label classification model** was trained using a modified 3D UNet architecture.
+- The model predicts multiple hemorrhage subtypes and uses **Focal Loss** to address class imbalance.
 
-### **2.4 Training Strategy**
-- **Optimizer**: Adam optimizer with cyclic learning rate scheduling.
-- **Loss Function**: Weighted **Focal Loss** for multi-label classification.
-- **Regularization**: Early stopping and gradient clipping to stabilize training.
+### **2.4 Vision Transformer (ViT)**
+- Although initially intended for multi-label classification, the ViT failed to converge effectively on this task.
+- It was not fine-tuned for classification but was instead used to explore **Grad-CAM explainability** outputs.
 
 ### **2.5 Evaluation Metrics**
 - **Accuracy**: Proportion of correct predictions.
@@ -104,14 +103,14 @@ Generate segmentation masks using DeepBleed:
 python run_deepbleed_segmentation.py --input_dir data/nifti --output_dir results/segmentation
 ```
 
-### **4.2 Multi-Label Classification (ViT)**
-Train the Vision Transformer for multi-label hemorrhage classification:
+### **4.2 Multi-Label Classification**
+Train the multi-label classification model:
 ```bash
-python train_vit_classifier.py --config configs/multi_label_vit.yaml
+python train_unet_classifier.py --config configs/multi_label_unet.yaml
 ```
 
 ### **4.3 Grad-CAM Explainability**
-Generate Grad-CAM heatmaps for model interpretability:
+Generate Grad-CAM heatmaps for the Vision Transformer:
 ```bash
 python gradcam_vit.py --input_dir data/nifti --model_checkpoint results/checkpoints/vit.pth --output_dir results/grad_cam
 ```
@@ -119,8 +118,9 @@ python gradcam_vit.py --input_dir data/nifti --model_checkpoint results/checkpoi
 ---
 
 ## **5. Results**
-The performance of our Vision Transformer model is summarized below:
+The performance of our models is summarized below:
 
+### **Multi-Label Classification Metrics**
 | **Metric**          | **Training Set** | **Testing Set** |
 |----------------------|------------------|-----------------|
 | **Accuracy (%)**     | 86.5            | 84.3           |
@@ -128,27 +128,25 @@ The performance of our Vision Transformer model is summarized below:
 | **AUROC**            | 0.82            | 0.78           |
 | **AUPRC**            | 0.68            | 0.63           |
 
-- The model achieved a testing accuracy of **84.3%** and an F1 Score of **0.75**, demonstrating its reliability in handling multiple hemorrhage types.
-- Grad-CAM outputs provided visual explainability, highlighting regions of the brain critical for decision-making.
+- The **multi-label classification model** achieved a testing accuracy of **84.3%** and a weighted F1 Score of **0.75**, demonstrating reliable performance in identifying multiple hemorrhage types.
+- The Grad-CAM outputs for the Vision Transformer showed promise in highlighting relevant regions but did not directly contribute to classification due to the lack of fine-tuning.
+
+### **Pretrained Segmentation Model (DeepBleed)**
+The DeepBleed segmentation model successfully established ground truth segmentation masks for comparison, providing accurate localization of hemorrhage regions.
 
 ---
 
 ## **6. Directory Structure**
 ```
 DL-Project/
-│-- data/                 # Dataset folder
-│   │-- dicom/            # Original DICOM files
-│   │-- nifti/            # Converted NIfTI files
-│-- results/              # Output directory
-│   │-- segmentation/     # Ground truth segmentation masks
-│   │-- grad_cam/         # Grad-CAM heatmaps
-│   │-- metrics.json      # Evaluation metrics
-│-- configs/              # Configuration files
-│-- scripts/              # Preprocessing scripts
-│-- train_vit_classifier.py   # Training script for Vision Transformer
-│-- run_deepbleed_segmentation.py # Script for DeepBleed model
-│-- gradcam_vit.py        # Grad-CAM generation script
-│-- requirements.txt      # Required dependencies
+🔹 data/                 # Dataset folder
+🔹 results/              # Output directory
+🔹 configs/              # Configuration files
+🔹 scripts/              # Preprocessing scripts
+🔹 train_unet_classifier.py   # Training script for multi-label classification
+🔹 run_deepbleed_segmentation.py # Script for DeepBleed model
+🔹 gradcam_vit.py        # Grad-CAM generation script
+🔹 requirements.txt      # Required dependencies
 ```
 
 ---
@@ -172,6 +170,3 @@ We extend our gratitude to the MONAI team and the creators of the DeepBleed mode
 - Liu, Q. et al. Project-MONAI, 2024.  
 - Grewal, M. et al. RADnet: Radiologist-level accuracy for hemorrhage detection. IEEE, 2018.
 - Wang et al. Dual-task Vision Transformer for ICH Classification. arXiv, 2024.
-
-
-
