@@ -94,19 +94,19 @@ unzip rsna-intracranial-hemorrhage-detection.zip -d data/
 ### **4.1 Ground Truth Segmentation (DeepBleed)**
 Generate segmentation masks using DeepBleed:
 ```bash
-python run_deepbleed_segmentation.py --input_dir data/nifti --output_dir results/segmentation
+run_deepbleed_segmentation.py
 ```
 
 ### **4.2 multi-class Classification**
 Train the multi-class classification model:
 ```bash
-python MONAI_3D_Class.py 
+MONAI_3D_Class.py 
 ```
 
 ### **4.3 Grad-CAM Explainability**
 Generate Grad-CAM heatmaps for the Vision Transformer:
 ```bash
-python gradcam_vit.py --input_dir data/nifti --model_checkpoint results/checkpoints/vit.pth --output_dir results/grad_cam
+visiontransformerClassifier.ipynb 
 ```
 
 ---
