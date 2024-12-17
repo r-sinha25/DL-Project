@@ -94,7 +94,7 @@ unzip rsna-intracranial-hemorrhage-detection.zip -d data/
 ### **4.1 Ground Truth Segmentation (DeepBleed)**
 Generate segmentation masks using DeepBleed:
 ```bash
-run_deepbleed_segmentation.py
+pretrainedSegmentation.ipynb
 ```
 
 ### **4.2 multi-class Classification**
