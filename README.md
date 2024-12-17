@@ -14,15 +14,15 @@ Team members:
 ## **Abstract**
 Intracranial Hemorrhage (ICH), a life-threatening condition, is traditionally diagnosed through manual inspection of brain CT scans. To improve the accuracy and efficiency of detection, we developed two deep learning models:
 1. A **pretrained segmentation model** (DeepBleed) to establish ground-truth segmentation masks.
-2. A **Vision Transformer (ViT)**, initially intended for **multi-label classification** and explainability using Grad-CAM, but which failed to perform adequately and was not fine-tuned for the multi-label task.
+2. A **Vision Transformer (ViT)**, initially intended for **multi-class classification** and explainability using Grad-CAM, but which failed to perform adequately and was not fine-tuned for the multi-class task.
 
-The segmentation model provides fine-grained detection of hemorrhage regions, while the multi-label classification was implemented separately to address hemorrhage subtype classification.
+The segmentation model provides fine-grained detection of hemorrhage regions, while the multi-class classification was implemented separately to address hemorrhage subtype classification.
 
 ---
 
 ## **1. Data Installation**
 ### **Dataset**
-The dataset is sourced from the [RSNA Intracranial Hemorrhage Detection competition](https://www.kaggle.com/c/rsna-intracranial-hemorrhage-detection). It contains DICOM brain CT scans with multi-label annotations.
+The dataset is sourced from the [RSNA Intracranial Hemorrhage Detection competition](https://www.kaggle.com/c/rsna-intracranial-hemorrhage-detection). It contains DICOM brain CT scans with multi-class annotations.
 
 ### **Steps to Download the Dataset**
 Run the following command to download the dataset using Kaggle CLI:
@@ -49,12 +49,12 @@ unzip rsna-intracranial-hemorrhage-detection.zip -d data/
 - Use **DeepBleed** (3D CNN) to generate segmentation masks, establishing ground truth for hemorrhage regions.
 - Process NIfTI CT images with a multi-GPU pipeline for fast inference.
 
-### **2.3 Multi-Label Classification**
-- A separate **multi-label classification model** was trained using a modified 3D UNet architecture.
+### **2.3 multi-class Classification**
+- A separate **multi-class classification model** was trained using a modified 3D UNet architecture.
 - The model predicts multiple hemorrhage subtypes and uses **Focal Loss** to address class imbalance.
 
 ### **2.4 Vision Transformer (ViT)**
-- Although initially intended for multi-label classification, the ViT failed to converge effectively on this task.
+- Although initially intended for multi-class classification, the ViT failed to converge effectively on this task.
 - It was not fine-tuned for classification but was instead used to explore **Grad-CAM explainability** outputs.
 
 ### **2.5 Evaluation Metrics**
@@ -83,13 +83,7 @@ unzip rsna-intracranial-hemorrhage-detection.zip -d data/
    git clone https://github.com/r-sinha25/DL-Project.git
    cd DL-Project
    ```
-2. Set up a virtual environment:
-   ```bash
-   python -m venv env
-   source env/bin/activate  # For Linux/Mac
-   env\Scripts\activate    # For Windows
-   ```
-3. Install the required libraries:
+2. Install the required libraries:
    ```bash
    pip install -r requirements.txt
    ```
@@ -103,10 +97,10 @@ Generate segmentation masks using DeepBleed:
 python run_deepbleed_segmentation.py --input_dir data/nifti --output_dir results/segmentation
 ```
 
-### **4.2 Multi-Label Classification**
-Train the multi-label classification model:
+### **4.2 multi-class Classification**
+Train the multi-class classification model:
 ```bash
-python train_unet_classifier.py --config configs/multi_label_unet.yaml
+python MONAI_3D_Class.py 
 ```
 
 ### **4.3 Grad-CAM Explainability**
@@ -120,7 +114,7 @@ python gradcam_vit.py --input_dir data/nifti --model_checkpoint results/checkpoi
 ## **5. Results**
 The performance of our models is summarized below:
 
-### **Multi-Label Classification Metrics**
+### **Multi-Class Classification Metrics**
 | **Metric**          | **Training Set** | **Testing Set** |
 |----------------------|------------------|-----------------|
 | **Accuracy (%)**     | 86.5            | 84.3           |
@@ -128,7 +122,7 @@ The performance of our models is summarized below:
 | **AUROC**            | 0.82            | 0.78           |
 | **AUPRC**            | 0.68            | 0.63           |
 
-- The **multi-label classification model** achieved a testing accuracy of **84.3%** and a weighted F1 Score of **0.75**, demonstrating reliable performance in identifying multiple hemorrhage types.
+- The **multi-class classification model** achieved a testing accuracy of **84.3%** and a weighted F1 Score of **0.75**, demonstrating reliable performance in identifying multiple hemorrhage types.
 - The Grad-CAM outputs for the Vision Transformer showed promise in highlighting relevant regions but did not directly contribute to classification due to the lack of fine-tuning.
 
 ### **Pretrained Segmentation Model (DeepBleed)**
